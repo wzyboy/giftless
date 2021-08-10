@@ -10,7 +10,7 @@ from .identity import DefaultIdentity, Permission
 class HtpasswdAuthenticator(PreAuthorizedActionAuthenticator):
 
     def __init__(self, filename):
-        self.db = HtpasswdFile(filename)
+        self.filename = filename
 
     def __call__(self, request):
         # Try getting cleartext username + password from header
@@ -24,7 +24,8 @@ class HtpasswdAuthenticator(PreAuthorizedActionAuthenticator):
         parsed_header = parse_authorization_header(header)
 
         # Validate against db
-        if not self.db.check_password(parsed_header.username, parsed_header.password):
+        db = HtpasswdFile(self.filename)
+        if not db.check_password(parsed_header.username, parsed_header.password):
             return
 
         # Create user and grant permissions
